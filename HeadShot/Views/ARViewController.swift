@@ -25,6 +25,11 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
     private var previewFaceNode: SCNNode!
     private var previewFaceGeometry: ARSCNFaceGeometry!
     
+    /// Secondary scene view that shows the captured face
+    private var secondPreviewSceneView: SCNView!
+    private var secondPreviewFaceNode: SCNNode!
+    private var secondPreviewFaceGeometry: ARSCNFaceGeometry!
+    
     // MARK: View Lifecycle
     
     override func viewDidLoad() {
@@ -48,25 +53,22 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
         // Preview
         //TODO: update preview size
         
-        previewSceneView = SCNView(frame: CGRect(x: 0, y: 0, width: 500, height: 500), options: nil)
+        previewSceneView = SCNView(frame: self.view.bounds, options: nil)
         previewSceneView.rendersContinuously = true
-        //TODO: want to set this to false
-        
-        previewSceneView.backgroundColor = UIColor.black
         previewSceneView.allowsCameraControl = true
         self.view.addSubview(previewSceneView)
         previewSceneView.scene = SCNScene()
-        
+
         let camera = SCNCamera()
         camera.zNear = 0.001
         camera.zFar = 1000
-        
+
         let cameraNode = SCNNode()
         cameraNode.camera = camera
         cameraNode.position = SCNVector3Make(0, 0, 1)
         previewSceneView.scene!.rootNode.addChildNode(cameraNode)
         cameraNode.look(at: SCNVector3Zero)
-        
+
         self.previewFaceGeometry = ARSCNFaceGeometry(device: self.sceneView.device!, fillMesh: true)
         self.previewFaceNode = SCNNode(geometry: self.previewFaceGeometry)
         let faceScale = Float(4.0)
@@ -75,6 +77,17 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
         self.previewFaceGeometry.firstMaterial!.isDoubleSided = true
 
         previewSceneView.scene!.rootNode.addChildNode(self.previewFaceNode!)
+        
+        self.secondPreviewFaceGeometry = ARSCNFaceGeometry(device: self.sceneView.device!, fillMesh: true)
+        self.secondPreviewFaceNode = SCNNode(geometry: self.secondPreviewFaceGeometry)
+        self.secondPreviewFaceNode.scale = SCNVector3(x: faceScale, y: faceScale, z: faceScale)
+        self.secondPreviewFaceGeometry.firstMaterial!.diffuse.contents = UIColor.lightGray
+        self.secondPreviewFaceGeometry.firstMaterial!.fillMode = .lines
+        self.secondPreviewFaceGeometry.firstMaterial!.lightingModel = .physicallyBased
+        self.secondPreviewFaceGeometry.firstMaterial!.isDoubleSided = true
+
+        previewSceneView.scene!.rootNode.addChildNode(self.secondPreviewFaceNode!)
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -111,9 +124,12 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
         }
         
         self.previewFaceGeometry.update(from: faceAnchor.geometry)
+        self.secondPreviewFaceGeometry.update(from: faceAnchor.geometry)
 
         scnFaceGeometry.update(from: faceAnchor.geometry)
         faceUvGenerator.update(frame: frame, scene: self.sceneView.scene, headNode: node, geometry: scnFaceGeometry)
+        
+        
     }
     
     // MARK: Export
@@ -145,11 +161,11 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
             return
         }
         
-        previewSceneView.rendersContinuously = false
-        previewSceneView.allowsCameraControl = true
+//        previewSceneView.rendersContinuously = false
+//        previewSceneView.allowsCameraControl = true
         
         //idea: look into ARKit
-        
+        sceneView.session.pause()
         
     }
     
