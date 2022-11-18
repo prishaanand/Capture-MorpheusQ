@@ -8,7 +8,12 @@ private let faceTextureSize = 1024 //px
 /// Should the face mesh be filled in? (i.e. fill in the eye and mouth holes with geometry)
 private let fillMesh = true
 
-class ARViewController: UIViewController, ARSCNViewDelegate {
+class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
+    
+    var utilities = Utilities()
+    var session: ARSession {
+        return sceneView.session
+    }
     
     private var faceUvGenerator: FaceTextureGenerator!
     private var scnFaceGeometry: ARSCNFaceGeometry!
@@ -80,13 +85,20 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
         
         self.secondPreviewFaceGeometry = ARSCNFaceGeometry(device: self.sceneView.device!, fillMesh: true)
         self.secondPreviewFaceNode = SCNNode(geometry: self.secondPreviewFaceGeometry)
-        self.secondPreviewFaceNode.scale = SCNVector3(x: faceScale, y: faceScale, z: faceScale)
+    
+        //prevent aliasing
+        let faceScale2 = Float(4.01)
+        self.secondPreviewFaceNode.scale = SCNVector3(x: faceScale2, y: faceScale2, z: faceScale2)
         self.secondPreviewFaceGeometry.firstMaterial!.diffuse.contents = UIColor.lightGray
         self.secondPreviewFaceGeometry.firstMaterial!.fillMode = .lines
+        //try
+        self.secondPreviewFaceNode.geometry?.firstMaterial!.isLitPerPixel = false;
+
         self.secondPreviewFaceGeometry.firstMaterial!.lightingModel = .physicallyBased
         self.secondPreviewFaceGeometry.firstMaterial!.isDoubleSided = true
 
         previewSceneView.scene!.rootNode.addChildNode(self.secondPreviewFaceNode!)
+        
         
     }
     
@@ -161,12 +173,25 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
             return
         }
         
-//        previewSceneView.rendersContinuously = false
-//        previewSceneView.allowsCameraControl = true
-        
-        //idea: look into ARKit
         sceneView.session.pause()
         
     }
+    
+    //point cloud export
+    public func exportFaceMap() {
+            guard let a = session.currentFrame?.anchors[0] as? ARFaceAnchor else { return }
+            
+            let toprint = utilities.exportToSTL(geometry: a.geometry)
+            
+            let file = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("face.dae")
+            do {
+                try toprint.write(to: file!, atomically: true, encoding: String.Encoding.utf8)
+            } catch  {
+                
+            }
+            let vc = UIActivityViewController(activityItems: [file as Any], applicationActivities: [])
+            present(vc, animated: true, completion: nil)
+            
+        }
     
 }

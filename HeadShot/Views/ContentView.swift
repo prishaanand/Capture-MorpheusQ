@@ -29,14 +29,26 @@ struct ContentView: View {
                 
                 //implement capture feature
                 Button("Take Capture", action: {
-                    //currently works, however, dragging causes it to start recording again
                     arController!.capture()
-                    //arController!.exportTextureMapToPhotos()
-                    
                 })
                 .padding(10)
                 .background(Blur(style: .systemMaterial))
                 .padding(.bottom, 10)
+                
+                Button("Export Texture Map", action: {
+                                    arController!.exportTextureMapToPhotos()
+                })
+                .padding(10)
+                .background(Blur(style: .systemMaterial))
+                .padding(.bottom, 10)
+                
+                Button("Export Texture Map", action: {
+                    arController!.exportFaceMap()
+                })
+                .padding(10)
+                .background(Blur(style: .systemMaterial))
+                .padding(.bottom, 10)
+                
                 
             }
         }

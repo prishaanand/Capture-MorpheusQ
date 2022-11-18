@@ -17,6 +17,7 @@
 		89D2C9C824AFAC9100827D2C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 89D2C9AD24AFAC9100827D2C /* LaunchScreen.storyboard */; };
 		89D2C9D424AFAC9100827D2C /* ScnMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89D2C9BD24AFAC9100827D2C /* ScnMatrix.swift */; };
 		89D2C9DC24AFAC9100827D2C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89D2C9C624AFAC9100827D2C /* AppDelegate.swift */; };
+		B12927D22927198100DE56C1 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12927D12927198100DE56C1 /* Utilities.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		89D2C9B724AFAC9100827D2C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		89D2C9BD24AFAC9100827D2C /* ScnMatrix.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScnMatrix.swift; sourceTree = "<group>"; };
 		89D2C9C624AFAC9100827D2C /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		B12927D12927198100DE56C1 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +95,7 @@
 				89D2C9BA24AFAC9100827D2C /* Extensions */,
 				89D2C9AC24AFAC9100827D2C /* Resources */,
 				899D8C9226253BAB003BCFD7 /* TextureToImage.swift */,
+				B12927D12927198100DE56C1 /* Utilities.swift */,
 			);
 			path = HeadShot;
 			sourceTree = "<group>";
@@ -149,7 +152,7 @@
 				TargetAttributes = {
 					3929C4871E89EC2C00E00B60 = {
 						CreatedOnToolsVersion = 9.0;
-						DevelopmentTeam = RHKYUV6A86;
+						DevelopmentTeam = P775YD9KLQ;
 						LastSwiftMigration = 1150;
 						ProvisioningStyle = Automatic;
 					};
@@ -199,6 +202,7 @@
 				2F15723824B4C73700FC8D4A /* ARContainer.swift in Sources */,
 				89D2C9D424AFAC9100827D2C /* ScnMatrix.swift in Sources */,
 				899D8C9326253BAB003BCFD7 /* TextureToImage.swift in Sources */,
+				B12927D22927198100DE56C1 /* Utilities.swift in Sources */,
 				89C39A1E262395EE00DFDB83 /* FaceTextureGenerator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -328,14 +332,14 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = RHKYUV6A86;
+				DEVELOPMENT_TEAM = P775YD9KLQ;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_OPTIMIZATION_LEVEL = s;
 				INFOPLIST_FILE = "$(SRCROOT)/HeadShot/Resources/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 0.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = yuru.headshot;
+				PRODUCT_BUNDLE_IDENTIFIER = ios.headshot;
 				PRODUCT_NAME = HeadShot;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -352,14 +356,14 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = RHKYUV6A86;
+				DEVELOPMENT_TEAM = P775YD9KLQ;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_OPTIMIZATION_LEVEL = s;
 				INFOPLIST_FILE = "$(SRCROOT)/HeadShot/Resources/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 0.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = yuru.headshot;
+				PRODUCT_BUNDLE_IDENTIFIER = ios.headshot;
 				PRODUCT_NAME = HeadShot;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
