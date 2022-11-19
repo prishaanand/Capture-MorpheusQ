@@ -42,7 +42,7 @@ struct ContentView: View {
                 .background(Blur(style: .systemMaterial))
                 .padding(.bottom, 10)
                 
-                Button("Export Texture Map", action: {
+                Button("Export Point Cloud", action: {
                     arController!.exportFaceMap()
                 })
                 .padding(10)

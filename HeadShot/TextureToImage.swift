@@ -8,7 +8,7 @@ import UIKit
 private func makeImage(for texture: MTLTexture) -> CGImage? {
     let width = texture.width
     let height = texture.height
-    let pixelByteCount = 4 * MemoryLayout<UInt8>.size
+    let pixelByteCount = 8 * MemoryLayout<UInt8>.size
     let imageBytesPerRow = width * pixelByteCount
     let imageByteCount = imageBytesPerRow * height
     let imageBytes = UnsafeMutableRawPointer.allocate(byteCount: imageByteCount, alignment: pixelByteCount)

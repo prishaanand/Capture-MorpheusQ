@@ -88,8 +88,9 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     
         //prevent aliasing
         let faceScale2 = Float(4.01)
+       
         self.secondPreviewFaceNode.scale = SCNVector3(x: faceScale2, y: faceScale2, z: faceScale2)
-        self.secondPreviewFaceGeometry.firstMaterial!.diffuse.contents = UIColor.lightGray
+        self.secondPreviewFaceGeometry.firstMaterial!.diffuse.contents = UIColor.white
         self.secondPreviewFaceGeometry.firstMaterial!.fillMode = .lines
         //try
         self.secondPreviewFaceNode.geometry?.firstMaterial!.isLitPerPixel = false;
