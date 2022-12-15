@@ -30,21 +30,41 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     private var previewFaceNode: SCNNode!
     private var previewFaceGeometry: ARSCNFaceGeometry!
     
-    /// Secondary scene view that shows the captured face
-    private var secondPreviewSceneView: SCNView!
-    private var secondPreviewFaceNode: SCNNode!
-    private var secondPreviewFaceGeometry: ARSCNFaceGeometry!
+    // MARK: Measurement
+    /// Dot Node
+    private var spheres: [SCNNode] = []
+    // Measurement label
+    private var measurementLabel = UILabel()
+    
+//    /// Secondary scene view that shows the captured face
+//    private var secondPreviewSceneView: SCNView!
+//    private var secondPreviewFaceNode: SCNNode!
+//    private var secondPreviewFaceGeometry: ARSCNFaceGeometry!
     
     // MARK: View Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        measurementLabel.frame = CGRect(x: 0, y: 0, width: view.frame.size.width, height: 100)
+               
+        // Makes the background white
+        measurementLabel.backgroundColor = .black
+
+        // Sets some default text
+        measurementLabel.text = "0 inches"
+
+        // Centers the text
+        measurementLabel.textAlignment = .center
+
+        // Adds the text to the
+        view.addSubview(measurementLabel)
+        
         sceneView = ARSCNView(frame: self.view.bounds, options: nil)
         sceneView.delegate = self
         sceneView.automaticallyUpdatesLighting = false
         sceneView.rendersCameraGrain = true
-        self.view.addSubview(sceneView)
+        view.addSubview(sceneView)
         
         self.scnFaceGeometry = ARSCNFaceGeometry(device: self.sceneView.device!, fillMesh: fillMesh)
         
@@ -61,6 +81,9 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         previewSceneView = SCNView(frame: self.view.bounds, options: nil)
         previewSceneView.rendersContinuously = true
         previewSceneView.allowsCameraControl = true
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        tapRecognizer.numberOfTapsRequired = 1
+        previewSceneView.addGestureRecognizer(tapRecognizer)
         self.view.addSubview(previewSceneView)
         previewSceneView.scene = SCNScene()
 
@@ -76,6 +99,7 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 
         self.previewFaceGeometry = ARSCNFaceGeometry(device: self.sceneView.device!, fillMesh: true)
         self.previewFaceNode = SCNNode(geometry: self.previewFaceGeometry)
+        self.previewFaceNode.renderingOrder = -1
         let faceScale = Float(4.0)
         self.previewFaceNode.scale = SCNVector3(x: faceScale, y: faceScale, z: faceScale)
         self.previewFaceGeometry.firstMaterial!.diffuse.contents = faceUvGenerator.texture
@@ -83,22 +107,16 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 
         previewSceneView.scene!.rootNode.addChildNode(self.previewFaceNode!)
         
-        self.secondPreviewFaceGeometry = ARSCNFaceGeometry(device: self.sceneView.device!, fillMesh: true)
-        self.secondPreviewFaceNode = SCNNode(geometry: self.secondPreviewFaceGeometry)
-    
-        //prevent aliasing
-        let faceScale2 = Float(4.01)
-       
-        self.secondPreviewFaceNode.scale = SCNVector3(x: faceScale2, y: faceScale2, z: faceScale2)
-        self.secondPreviewFaceGeometry.firstMaterial!.diffuse.contents = UIColor.white
-        self.secondPreviewFaceGeometry.firstMaterial!.fillMode = .lines
-        //try
-        self.secondPreviewFaceNode.geometry?.firstMaterial!.isLitPerPixel = false;
-
-        self.secondPreviewFaceGeometry.firstMaterial!.lightingModel = .physicallyBased
-        self.secondPreviewFaceGeometry.firstMaterial!.isDoubleSided = true
-
-        previewSceneView.scene!.rootNode.addChildNode(self.secondPreviewFaceNode!)
+//        self.secondPreviewFaceGeometry = ARSCNFaceGeometry(device: self.sceneView.device!, fillMesh: true)
+//        self.secondPreviewFaceNode = SCNNode(geometry: self.secondPreviewFaceGeometry)
+//        self.secondPreviewFaceNode.position = SCNVector3Make(0, 0, 0.001)
+//        self.secondPreviewFaceNode.scale = SCNVector3(x: faceScale, y: faceScale, z: faceScale)
+//        self.secondPreviewFaceGeometry.firstMaterial!.diffuse.contents = UIColor.white
+//        self.secondPreviewFaceGeometry.firstMaterial!.fillMode = .lines
+//        self.secondPreviewFaceGeometry.firstMaterial!.lightingModel = .physicallyBased
+//        self.secondPreviewFaceGeometry.firstMaterial!.isDoubleSided = true
+//
+//        previewSceneView.scene!.rootNode.addChildNode(self.secondPreviewFaceNode!)
         
         
     }
@@ -137,7 +155,6 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         }
         
         self.previewFaceGeometry.update(from: faceAnchor.geometry)
-        self.secondPreviewFaceGeometry.update(from: faceAnchor.geometry)
 
         scnFaceGeometry.update(from: faceAnchor.geometry)
         faceUvGenerator.update(frame: frame, scene: self.sceneView.scene, headNode: node, geometry: scnFaceGeometry)
@@ -146,53 +163,115 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     }
     
     // MARK: Export
-    
-    public func exportTextureMapToPhotos() {
-        let close = {
-            Timer.scheduledTimer(withTimeInterval: 2, repeats:false, block: {_ in
-                self.dismiss(animated: true, completion: nil)
-            })
-            return
-        }
-        
-        if let uiImage = textureToImage(faceUvGenerator.texture) {
-            UIImageWriteToSavedPhotosAlbum(uiImage, nil, nil, nil)
-            let alert = UIAlertController(title: "Export Successful", message: "Saved texture to photo album", preferredStyle: .alert)
-            self.present(alert, animated: true, completion: close)
-        } else {
-            let alert = UIAlertController(title: "Export Failed", message: "Could not save texture to photo album", preferredStyle: .alert)
-            self.present(alert, animated: true, completion: close)
-        }
-    }
-    
     public func capture() {
+//        previewSceneView.rendersContinuously = false
+//        previewSceneView.allowsCameraControl = true
         
-        _ = {
-            Timer.scheduledTimer(withTimeInterval: 2, repeats:false, block: {_ in
-                self.dismiss(animated: true, completion: nil)
-            })
-            return
-        }
-        
+        //idea: look into ARKit
         sceneView.session.pause()
-        
     }
     
-    //point cloud export
-    public func exportFaceMap() {
-            guard let a = session.currentFrame?.anchors[0] as? ARFaceAnchor else { return }
+    @objc func handleTap(sender: UITapGestureRecognizer) {
+        // Gets the location of the tap and assigns it to a constant
+        let location = sender.location(in: previewSceneView)
+        let hitTest = previewSceneView.hitTest(location)
+        // Assigns the most accurate result to a constant if it is non-nil
+        guard let result = hitTest.first else { return }
+        
+        // Creates an SCNVector3 with certain indexes in the matrix
+        let vector = result.worldCoordinates
+
+        // Makes a new sphere with the created method
+        let sphere = createSphere(at: vector)
+        
+        // Checks if there is at least one sphere in the array
+        if let first = spheres.first {
             
-            let toprint = utilities.exportToSTL(geometry: a.geometry)
+            // Adds a second sphere to the array
+            spheres.append(sphere)
+            measurementLabel.text = "\(sphere.distance(to: first)) inches"
             
-            let file = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("face.dae")
-            do {
-                try toprint.write(to: file!, atomically: true, encoding: String.Encoding.utf8)
-            } catch  {
+            // If more that two are present...
+            if spheres.count > 2 {
                 
+                // Iterate through spheres array
+                for sphere in spheres {
+                    
+                    // Remove all spheres
+                    sphere.removeFromParentNode()
+                }
+                
+                // Remove extraneous spheres
+                spheres = [spheres[2]]
             }
-            let vc = UIActivityViewController(activityItems: [file as Any], applicationActivities: [])
-            present(vc, animated: true, completion: nil)
+        
+        // If there are no spheres...
+        } else {
+            // Add the sphere
+            spheres.append(sphere)
+        }
+        
+        // Iterate through spheres array
+        for sphere in spheres {
+            
+            // Add all spheres in the array
+            self.previewSceneView.scene!.rootNode.addChildNode(sphere)
+        }
+    }
+    
+    func createSphere(at position: SCNVector3) -> SCNNode {
+            
+            // Creates an SCNSphere with a radius of 0.4
+            let sphere = SCNSphere(radius: 0.003)
+            
+            // Converts the sphere into an SCNNode
+            let node = SCNNode(geometry: sphere)
+            
+            // Positions the node based on the passed in position
+            node.position = position
+            
+            // Creates a material that is recognized by SceneKit
+            let material = SCNMaterial()
+            
+            // Converts the contents of the PNG file into the material
+            material.diffuse.contents = UIColor.red
+            
+            // Creates realistic shadows around the sphere
+            material.lightingModel = .blinn
+            
+            // Wraps the newly made material around the sphere
+            sphere.firstMaterial = material
+            
+            // Returns the node to the function
+            return node
             
         }
     
 }
+
+// MARK: - Extensions
+extension SCNNode {
+    
+    // Gets distance between two SCNNodes
+    func distance(to destination: SCNNode) -> CGFloat {
+        
+        // Meters to inches conversion
+        let inches: Float = 39.3701
+        
+        // Difference between x-positions
+        let dx = destination.position.x - position.x
+        
+        // Difference between x-positions
+        let dy = destination.position.y - position.y
+        
+        // Difference between x-positions
+        let dz = destination.position.z - position.z
+        
+        // Formula to get meters
+        let meters = sqrt(dx*dx + dy*dy + dz*dz)
+        
+        // Returns inches
+        return CGFloat(meters * inches)
+    }
+}
+
