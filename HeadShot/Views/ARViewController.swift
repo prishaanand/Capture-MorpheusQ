@@ -33,6 +33,7 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     // MARK: Measurement
     /// Dot Node
     private var spheres: [SCNNode] = []
+    private var sphereCoordinate: [SCNVector3] = []
     // Measurement label
     private var measurementLabel = UILabel()
     
@@ -45,21 +46,7 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        measurementLabel.frame = CGRect(x: 0, y: 0, width: view.frame.size.width, height: 100)
-               
-        // Makes the background white
-        measurementLabel.backgroundColor = .black
-
-        // Sets some default text
-        measurementLabel.text = "0 inches"
-
-        // Centers the text
-        measurementLabel.textAlignment = .center
-
-        // Adds the text to the
-        view.addSubview(measurementLabel)
-        
+            
         sceneView = ARSCNView(frame: self.view.bounds, options: nil)
         sceneView.delegate = self
         sceneView.automaticallyUpdatesLighting = false
@@ -81,9 +68,6 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         previewSceneView = SCNView(frame: self.view.bounds, options: nil)
         previewSceneView.rendersContinuously = true
         previewSceneView.allowsCameraControl = true
-        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap))
-        tapRecognizer.numberOfTapsRequired = 1
-        previewSceneView.addGestureRecognizer(tapRecognizer)
         self.view.addSubview(previewSceneView)
         previewSceneView.scene = SCNScene()
 
@@ -106,6 +90,22 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         self.previewFaceGeometry.firstMaterial!.isDoubleSided = true
 
         previewSceneView.scene!.rootNode.addChildNode(self.previewFaceNode!)
+        
+        measurementLabel.frame = CGRect(x: 0, y: 0, width: view.frame.size.width, height: 100)
+               
+        // Makes the background white
+        measurementLabel.backgroundColor = .white
+
+        // Sets some default text
+        measurementLabel.text = "0 mm"
+        
+        measurementLabel.textColor = .black
+
+        // Centers the text
+        measurementLabel.textAlignment = .center
+
+        // Adds the text to the
+        view.addSubview(measurementLabel)
         
 //        self.secondPreviewFaceGeometry = ARSCNFaceGeometry(device: self.sceneView.device!, fillMesh: true)
 //        self.secondPreviewFaceNode = SCNNode(geometry: self.secondPreviewFaceGeometry)
@@ -164,11 +164,11 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     
     // MARK: Export
     public func capture() {
-//        previewSceneView.rendersContinuously = false
-//        previewSceneView.allowsCameraControl = true
-        
         //idea: look into ARKit
         sceneView.session.pause()
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        tapRecognizer.numberOfTapsRequired = 1
+        previewSceneView.addGestureRecognizer(tapRecognizer)
     }
     
     @objc func handleTap(sender: UITapGestureRecognizer) {
@@ -177,19 +177,22 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         let hitTest = previewSceneView.hitTest(location)
         // Assigns the most accurate result to a constant if it is non-nil
         guard let result = hitTest.first else { return }
-        
+
         // Creates an SCNVector3 with certain indexes in the matrix
-        let vector = result.worldCoordinates
+        let worldCoord = result.worldCoordinates
+        let localCoord = result.localCoordinates
 
         // Makes a new sphere with the created method
-        let sphere = createSphere(at: vector)
+        let sphere = createSphere(at: worldCoord)
         
         // Checks if there is at least one sphere in the array
-        if let first = spheres.first {
+        if let firstSphere = spheres.first, let firstCoord = sphereCoordinate.first {
             
             // Adds a second sphere to the array
             spheres.append(sphere)
-            measurementLabel.text = "\(sphere.distance(to: first)) inches"
+            sphereCoordinate.append(localCoord)
+            let distance = distance(fromLocalCoord: localCoord, toLocalCoord: firstCoord)
+            measurementLabel.text = "\(distance) mm"
             
             // If more that two are present...
             if spheres.count > 2 {
@@ -201,14 +204,19 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
                     sphere.removeFromParentNode()
                 }
                 
-                // Remove extraneous spheres
-                spheres = [spheres[2]]
+                sphereCoordinate.removeAll()
+                spheres.removeAll()
+                measurementLabel.text = "0 mm"
+                
+//                // Remove extraneous spheres
+//                spheres = [spheres[2]]
             }
         
         // If there are no spheres...
         } else {
             // Add the sphere
             spheres.append(sphere)
+            sphereCoordinate.append(localCoord)
         }
         
         // Iterate through spheres array
@@ -245,33 +253,28 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
             // Returns the node to the function
             return node
             
-        }
-    
-}
-
-// MARK: - Extensions
-extension SCNNode {
-    
+    }
     // Gets distance between two SCNNodes
-    func distance(to destination: SCNNode) -> CGFloat {
+    func distance(fromLocalCoord: SCNVector3, toLocalCoord: SCNVector3) -> CGFloat {
         
         // Meters to inches conversion
-        let inches: Float = 39.3701
+        let millimeter: Int = 1000
         
         // Difference between x-positions
-        let dx = destination.position.x - position.x
+        let dx = toLocalCoord.x - fromLocalCoord.x
         
         // Difference between x-positions
-        let dy = destination.position.y - position.y
+        let dy = toLocalCoord.y - fromLocalCoord.y
         
         // Difference between x-positions
-        let dz = destination.position.z - position.z
+        let dz = toLocalCoord.z - fromLocalCoord.z
         
         // Formula to get meters
         let meters = sqrt(dx*dx + dy*dy + dz*dz)
-        
+    
         // Returns inches
-        return CGFloat(meters * inches)
+        return CGFloat(meters * Float(millimeter))
     }
+    
 }
 

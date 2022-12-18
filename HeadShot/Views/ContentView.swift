@@ -35,20 +35,20 @@ struct ContentView: View {
                 .background(Blur(style: .systemMaterial))
                 .padding(.bottom, 10)
                 
-                Button("Export Texture Map", action: {
-                                    arController!.exportTextureMapToPhotos()
-                })
-                .padding(10)
-                .background(Blur(style: .systemMaterial))
-                .padding(.bottom, 10)
-                
-                Button("Export Point Cloud", action: {
-                    arController!.exportFaceMap()
-                })
-                .padding(10)
-                .background(Blur(style: .systemMaterial))
-                .padding(.bottom, 10)
-                
+//                Button("Export Texture Map", action: {
+//                                    arController!.exportTextureMapToPhotos()
+//                })
+//                .padding(10)
+//                .background(Blur(style: .systemMaterial))
+//                .padding(.bottom, 10)
+//                
+//                Button("Export Point Cloud", action: {
+//                    arController!.exportFaceMap()
+//                })
+//                .padding(10)
+//                .background(Blur(style: .systemMaterial))
+//                .padding(.bottom, 10)
+//                
                 
             }
         }
