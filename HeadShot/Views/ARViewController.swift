@@ -37,11 +37,6 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     // Measurement label
     private var measurementLabel = UILabel()
     
-//    /// Secondary scene view that shows the captured face
-//    private var secondPreviewSceneView: SCNView!
-//    private var secondPreviewFaceNode: SCNNode!
-//    private var secondPreviewFaceGeometry: ARSCNFaceGeometry!
-    
     // MARK: View Lifecycle
     
     override func viewDidLoad() {
@@ -106,19 +101,6 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 
         // Adds the text to the
         view.addSubview(measurementLabel)
-        
-//        self.secondPreviewFaceGeometry = ARSCNFaceGeometry(device: self.sceneView.device!, fillMesh: true)
-//        self.secondPreviewFaceNode = SCNNode(geometry: self.secondPreviewFaceGeometry)
-//        self.secondPreviewFaceNode.position = SCNVector3Make(0, 0, 0.001)
-//        self.secondPreviewFaceNode.scale = SCNVector3(x: faceScale, y: faceScale, z: faceScale)
-//        self.secondPreviewFaceGeometry.firstMaterial!.diffuse.contents = UIColor.white
-//        self.secondPreviewFaceGeometry.firstMaterial!.fillMode = .lines
-//        self.secondPreviewFaceGeometry.firstMaterial!.lightingModel = .physicallyBased
-//        self.secondPreviewFaceGeometry.firstMaterial!.isDoubleSided = true
-//
-//        previewSceneView.scene!.rootNode.addChildNode(self.secondPreviewFaceNode!)
-        
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -228,30 +210,30 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     }
     
     func createSphere(at position: SCNVector3) -> SCNNode {
-            
-            // Creates an SCNSphere with a radius of 0.4
-            let sphere = SCNSphere(radius: 0.003)
-            
-            // Converts the sphere into an SCNNode
-            let node = SCNNode(geometry: sphere)
-            
-            // Positions the node based on the passed in position
-            node.position = position
-            
-            // Creates a material that is recognized by SceneKit
-            let material = SCNMaterial()
-            
-            // Converts the contents of the PNG file into the material
-            material.diffuse.contents = UIColor.red
-            
-            // Creates realistic shadows around the sphere
-            material.lightingModel = .blinn
-            
-            // Wraps the newly made material around the sphere
-            sphere.firstMaterial = material
-            
-            // Returns the node to the function
-            return node
+        
+        // Creates an SCNSphere with a radius of 0.4
+        let capsule = SCNCapsule(capRadius: 0.003, height: 0.02)
+        
+        // Converts the sphere into an SCNNode
+        let handle  = SCNNode(geometry: capsule)
+        
+        // Positions the node based on the passed in position
+        handle.position = position
+        
+        // Creates a material that is recognized by SceneKit
+        let material = SCNMaterial()
+        
+        // Converts the contents of the PNG file into the material
+        material.diffuse.contents = UIColor.red
+        
+        // Creates realistic shadows around the sphere
+        material.lightingModel = .blinn
+        
+        // Wraps the newly made material around the sphere
+        capsule.firstMaterial = material
+        
+        // Returns the node to the function
+        return handle
             
     }
     // Gets distance between two SCNNodes

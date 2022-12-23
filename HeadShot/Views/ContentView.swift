@@ -28,12 +28,14 @@ struct ContentView: View {
             HStack {
                 
                 //implement capture feature
-                Button("Take Capture", action: {
+                Button(action: {
                     arController!.capture()
+                }, label: {
+                    Text("Take Capture")
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(Color.white)
                 })
-                .padding(10)
-                .background(Blur(style: .systemMaterial))
-                .padding(.bottom, 10)
                 
 //                Button("Export Texture Map", action: {
 //                                    arController!.exportTextureMapToPhotos()

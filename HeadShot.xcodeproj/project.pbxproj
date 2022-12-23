@@ -10,6 +10,7 @@
 		2F15722E24B4C07300FC8D4A /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F15722D24B4C07300FC8D4A /* SceneDelegate.swift */; };
 		2F15723424B4C27900FC8D4A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F15723324B4C27900FC8D4A /* ContentView.swift */; };
 		2F15723824B4C73700FC8D4A /* ARContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F15723724B4C73700FC8D4A /* ARContainer.swift */; };
+		68BCB1602951233100194A22 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 68BCB15F2951233100194A22 /* Assets.xcassets */; };
 		8923B3A726202D3B0033A4F1 /* faceTexture.metal in Sources */ = {isa = PBXBuildFile; fileRef = 8923B3A626202D3B0033A4F1 /* faceTexture.metal */; };
 		899D8C9326253BAB003BCFD7 /* TextureToImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 899D8C9226253BAB003BCFD7 /* TextureToImage.swift */; };
 		89C39A1E262395EE00DFDB83 /* FaceTextureGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C39A1D262395EE00DFDB83 /* FaceTextureGenerator.swift */; };
@@ -27,6 +28,7 @@
 		2F7D9838250CB61E0049FD42 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		2F92B1B524C6EC0C00F56422 /* ARVideoKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ARVideoKit.framework; path = Carthage/Build/iOS/ARVideoKit.framework; sourceTree = "<group>"; };
 		3929C4881E89EC2C00E00B60 /* HeadShot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HeadShot.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		68BCB15F2951233100194A22 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../../../Downloads/AppIcons/Assets.xcassets; sourceTree = "<group>"; };
 		8923B3A626202D3B0033A4F1 /* faceTexture.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = faceTexture.metal; sourceTree = "<group>"; };
 		899D8C9226253BAB003BCFD7 /* TextureToImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextureToImage.swift; sourceTree = "<group>"; };
 		89C39A1D262395EE00DFDB83 /* FaceTextureGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceTextureGenerator.swift; sourceTree = "<group>"; };
@@ -91,6 +93,7 @@
 				89D2C9C624AFAC9100827D2C /* AppDelegate.swift */,
 				2F15722D24B4C07300FC8D4A /* SceneDelegate.swift */,
 				89C39A1D262395EE00DFDB83 /* FaceTextureGenerator.swift */,
+				68BCB15F2951233100194A22 /* Assets.xcassets */,
 				2F15723224B4C26A00FC8D4A /* Views */,
 				89D2C9BA24AFAC9100827D2C /* Extensions */,
 				89D2C9AC24AFAC9100827D2C /* Resources */,
@@ -152,7 +155,7 @@
 				TargetAttributes = {
 					3929C4871E89EC2C00E00B60 = {
 						CreatedOnToolsVersion = 9.0;
-						DevelopmentTeam = RHKYUV6A86;
+						DevelopmentTeam = YV2B4M86T8;
 						LastSwiftMigration = 1150;
 						ProvisioningStyle = Automatic;
 					};
@@ -183,6 +186,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				68BCB1602951233100194A22 /* Assets.xcassets in Resources */,
 				89D2C9C824AFAC9100827D2C /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -328,18 +332,19 @@
 		3929C49B1E89EC2C00E00B60 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = RHKYUV6A86;
+				DEVELOPMENT_TEAM = YV2B4M86T8;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_OPTIMIZATION_LEVEL = s;
 				INFOPLIST_FILE = "$(SRCROOT)/HeadShot/Resources/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 0.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = yuru.ios.headshot;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.blueresonance.headshot;
 				PRODUCT_NAME = HeadShot;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -352,18 +357,19 @@
 		3929C49C1E89EC2C00E00B60 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = RHKYUV6A86;
+				DEVELOPMENT_TEAM = YV2B4M86T8;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_OPTIMIZATION_LEVEL = s;
 				INFOPLIST_FILE = "$(SRCROOT)/HeadShot/Resources/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 0.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = yuru.ios.headshot;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.blueresonance.headshot;
 				PRODUCT_NAME = HeadShot;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
