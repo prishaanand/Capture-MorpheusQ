@@ -8,7 +8,7 @@ private let faceTextureSize = 1024 //px
 /// Should the face mesh be filled in? (i.e. fill in the eye and mouth holes with geometry)
 private let fillMesh = true
 
-class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
+class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, UIGestureRecognizerDelegate {
     
     var utilities = Utilities()
     var session: ARSession {
@@ -37,6 +37,12 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     // Measurement label
     private var measurementLabel = UILabel()
     
+    // MARK: Panning
+    //var singlePanRecognizer: UIPanGestureRecognizer!
+//    var doublePanRecognizer: UIPanGestureRecognizer!
+    var lastTapLocation: CGPoint?
+    var selectedNode: SCNNode?
+    
     // MARK: View Lifecycle
     
     override func viewDidLoad() {
@@ -58,7 +64,6 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
             textureSize: faceTextureSize)
         
         // Preview
-        //TODO: update preview size
         
         previewSceneView = SCNView(frame: self.view.bounds, options: nil)
         previewSceneView.rendersContinuously = true
@@ -101,6 +106,21 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 
         // Adds the text to the
         view.addSubview(measurementLabel)
+        
+        //PANNING
+        // Disable Rotation for the view
+//        if let gestureRecognizers = sceneView.gestureRecognizers {
+//            for gesture in gestureRecognizers {
+//                if let g = gesture as? UIRotationGestureRecognizer {
+//                    g.isEnabled = false
+//                }
+//            }
+//        }
+//        singlePanRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleSinglePan(_:)))
+//        singlePanRecognizer.maximumNumberOfTouches = 1
+//        singlePanRecognizer.minimumNumberOfTouches = 1
+//        sceneView.addGestureRecognizer(singlePanRecognizer)
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -146,14 +166,29 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     
     // MARK: Export
     public func capture() {
-        //idea: look into ARKit
         sceneView.session.pause()
+        
+        //set up the tap recognizer
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         tapRecognizer.numberOfTapsRequired = 1
         previewSceneView.addGestureRecognizer(tapRecognizer)
+        
+        //set up drag recognizer
+        //var singlePanRecognizer: UIPanGestureRecognizer!
+        //var doublePanRecognizer: UIPanGestureRecognizer!
+        
+//        singlePanRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleSinglePan(_:)))
+//        singlePanRecognizer.maximumNumberOfTouches = 1
+//        singlePanRecognizer.minimumNumberOfTouches = 1
+//        previewSceneView.addGestureRecognizer(singlePanRecognizer)
+        
     }
     
+    
+    //TODO: need to fix so that can only drag the pointers itself
     @objc func handleTap(sender: UITapGestureRecognizer) {
+        
+        //---- handle the tapping ------
         // Gets the location of the tap and assigns it to a constant
         let location = sender.location(in: previewSceneView)
         let hitTest = previewSceneView.hitTest(location)
@@ -176,7 +211,14 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
             let distance = distance(fromLocalCoord: localCoord, toLocalCoord: firstCoord)
             measurementLabel.text = "\(distance) mm"
             
-            // If more that two are present...
+            //TODO: allow for spheres to be draggable
+          //  singlePanRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleSinglePan(_:)))
+//                   singlePanRecognizer.maximumNumberOfTouches = 1
+//                   singlePanRecognizer.minimumNumberOfTouches = 1
+//                   previewSceneView.addGestureRecognizer(singlePanRecognizer)
+            
+            
+            // If more that two are present
             if spheres.count > 2 {
                 
                 // Iterate through spheres array
@@ -189,16 +231,16 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
                 sphereCoordinate.removeAll()
                 spheres.removeAll()
                 measurementLabel.text = "0 mm"
-                
-//                // Remove extraneous spheres
-//                spheres = [spheres[2]]
+
             }
         
-        // If there are no spheres...
+        // If there are no spheres
         } else {
             // Add the sphere
+            sphere.name = "addedSphere"
             spheres.append(sphere)
             sphereCoordinate.append(localCoord)
+            
         }
         
         // Iterate through spheres array
@@ -212,26 +254,30 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     func createSphere(at position: SCNVector3) -> SCNNode {
         
         // Creates an SCNSphere with a radius of 0.4
-        let capsule = SCNCapsule(capRadius: 0.003, height: 0.02)
-        
+        let capsule = SCNCapsule(capRadius: 0.002, height: 0.06)
+      
         // Converts the sphere into an SCNNode
         let handle  = SCNNode(geometry: capsule)
+        //handle.name = "landmarkNode"
         
-        // Positions the node based on the passed in position
+        // Positions nodes based on the passed in position
         handle.position = position
+        
+        // Raise handles so they are not buried in the mesh
+        handle.eulerAngles = SCNVector3( (-CGFloat.pi/CGFloat(6.0)) , 0, (CGFloat.pi/CGFloat(6.0)))
         
         // Creates a material that is recognized by SceneKit
         let material = SCNMaterial()
-        
+
         // Converts the contents of the PNG file into the material
         material.diffuse.contents = UIColor.red
-        
+
         // Creates realistic shadows around the sphere
         material.lightingModel = .blinn
-        
+
         // Wraps the newly made material around the sphere
         capsule.firstMaterial = material
-        
+
         // Returns the node to the function
         return handle
             
@@ -258,5 +304,7 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         return CGFloat(meters * Float(millimeter))
     }
     
+    
 }
+
 
