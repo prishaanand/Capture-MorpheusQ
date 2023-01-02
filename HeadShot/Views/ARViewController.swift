@@ -233,6 +233,11 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, 
                 measurementLabel.text = "0 mm"
 
             }
+            
+            if spheres.count == 2 {
+                let panRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
+                previewSceneView.addGestureRecognizer(panRecognizer)
+            }
         
         // If there are no spheres
         } else {
@@ -304,6 +309,10 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, 
         return CGFloat(meters * Float(millimeter))
     }
     
+    @objc func handlePan(sender: UIPanGestureRecognizer) {
+        let location = sender.location(in: previewSceneView)
+        let hitTest = previewSceneView.hitTest(location)
+    }
     
 }
 
