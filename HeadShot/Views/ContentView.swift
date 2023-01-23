@@ -15,6 +15,10 @@ private struct Blur: UIViewRepresentable {
 
 struct ContentView: View {
     @State private var arController: ARViewController?
+    @State private var capture = false
+    private var buttonLabel: String {
+        capture ?  "Retake Capture" : "Take Capture"
+    }
     
     var body: some View {        
         return ZStack(alignment: .bottom) {
@@ -29,29 +33,18 @@ struct ContentView: View {
                 
                 //implement capture feature
                 Button(action: {
-                    arController!.capture()
+                    if capture {
+                        arController!.retake()
+                    } else {
+                        arController!.capture()
+                    }
+                    capture.toggle()
                 }, label: {
-                    Text("Take Capture")
+                    Text(buttonLabel)
                         .padding()
                         .background(Color.blue)
                         .foregroundColor(Color.white)
                 })
-                
-//                Button("Export Texture Map", action: {
-//                                    arController!.exportTextureMapToPhotos()
-//                })
-//                .padding(10)
-//                .background(Blur(style: .systemMaterial))
-//                .padding(.bottom, 10)
-//                
-//                Button("Export Point Cloud", action: {
-//                    arController!.exportFaceMap()
-//                })
-//                .padding(10)
-//                .background(Blur(style: .systemMaterial))
-//                .padding(.bottom, 10)
-//                
-                
             }
         }
         .statusBar(hidden: true)

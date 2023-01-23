@@ -33,26 +33,20 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, 
     // MARK: Measurement
     /// Dot Node
     private var spheres: [SCNNode] = []
-    private var sphereCoordinate: [SCNVector3] = []
+    private var sphereCoordinate: [(SCNVector3,SCNVector3)] = []
     // Measurement label
     private var measurementLabel = UILabel()
-    
-    // MARK: Panning
-    //var singlePanRecognizer: UIPanGestureRecognizer!
-//    var doublePanRecognizer: UIPanGestureRecognizer!
-    var lastTapLocation: CGPoint?
-    var selectedNode: SCNNode?
     
     // MARK: View Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
             
-        sceneView = ARSCNView(frame: self.view.bounds, options: nil)
-        sceneView.delegate = self
-        sceneView.automaticallyUpdatesLighting = false
-        sceneView.rendersCameraGrain = true
-        view.addSubview(sceneView)
+//        sceneView = ARSCNView(frame: self.view.bounds, options: nil)
+//        sceneView.delegate = self
+//        sceneView.automaticallyUpdatesLighting = false
+//        sceneView.rendersCameraGrain = true
+//        view.addSubview(sceneView)
         
         self.scnFaceGeometry = ARSCNFaceGeometry(device: self.sceneView.device!, fillMesh: fillMesh)
         
@@ -61,7 +55,8 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, 
             library: self.sceneView.device!.makeDefaultLibrary()!,
             viewportSize: self.view.bounds.size,
             face: self.scnFaceGeometry,
-            textureSize: faceTextureSize)
+            textureSize: faceTextureSize
+        )
         
         // Preview
         
@@ -78,14 +73,15 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, 
         let cameraNode = SCNNode()
         cameraNode.camera = camera
         cameraNode.position = SCNVector3Make(0, 0, 1)
+        cameraNode.name = "cameraNode"
         previewSceneView.scene!.rootNode.addChildNode(cameraNode)
         cameraNode.look(at: SCNVector3Zero)
 
         self.previewFaceGeometry = ARSCNFaceGeometry(device: self.sceneView.device!, fillMesh: true)
         self.previewFaceNode = SCNNode(geometry: self.previewFaceGeometry)
+        self.previewFaceNode.name = "faceNode"
         self.previewFaceNode.renderingOrder = -1
-        let faceScale = Float(4.0)
-        self.previewFaceNode.scale = SCNVector3(x: faceScale, y: faceScale, z: faceScale)
+        self.previewFaceNode.scale = SCNVector3(x: 4.0, y: 4.0, z: 4.0)
         self.previewFaceGeometry.firstMaterial!.diffuse.contents = faceUvGenerator.texture
         self.previewFaceGeometry.firstMaterial!.isDoubleSided = true
 
@@ -106,21 +102,6 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, 
 
         // Adds the text to the
         view.addSubview(measurementLabel)
-        
-        //PANNING
-        // Disable Rotation for the view
-//        if let gestureRecognizers = sceneView.gestureRecognizers {
-//            for gesture in gestureRecognizers {
-//                if let g = gesture as? UIRotationGestureRecognizer {
-//                    g.isEnabled = false
-//                }
-//            }
-//        }
-//        singlePanRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleSinglePan(_:)))
-//        singlePanRecognizer.maximumNumberOfTouches = 1
-//        singlePanRecognizer.minimumNumberOfTouches = 1
-//        sceneView.addGestureRecognizer(singlePanRecognizer)
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -173,15 +154,29 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, 
         tapRecognizer.numberOfTapsRequired = 1
         previewSceneView.addGestureRecognizer(tapRecognizer)
         
-        //set up drag recognizer
-        //var singlePanRecognizer: UIPanGestureRecognizer!
-        //var doublePanRecognizer: UIPanGestureRecognizer!
+    }
+    
+    public func retake() {
+        sceneView.session.run(sceneView.session.configuration!)
         
-//        singlePanRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleSinglePan(_:)))
-//        singlePanRecognizer.maximumNumberOfTouches = 1
-//        singlePanRecognizer.minimumNumberOfTouches = 1
-//        previewSceneView.addGestureRecognizer(singlePanRecognizer)
+        //set up the tap recognizer
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        tapRecognizer.numberOfTapsRequired = 1
+        previewSceneView.addGestureRecognizer(tapRecognizer)
         
+    }
+    
+    public func clearAll() {
+        // Iterate through spheres array
+        for sphere in spheres {
+            
+            // Remove all spheres
+            sphere.removeFromParentNode()
+        }
+        
+        sphereCoordinate.removeAll()
+        spheres.removeAll()
+        measurementLabel.text = "0 mm"
     }
     
     
@@ -205,46 +200,41 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, 
         // Checks if there is at least one sphere in the array
         if let firstSphere = spheres.first, let firstCoord = sphereCoordinate.first {
             
-            // Adds a second sphere to the array
-            spheres.append(sphere)
-            sphereCoordinate.append(localCoord)
-            let distance = distance(fromLocalCoord: localCoord, toLocalCoord: firstCoord)
-            measurementLabel.text = "\(distance) mm"
-            
-            //TODO: allow for spheres to be draggable
-          //  singlePanRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleSinglePan(_:)))
-//                   singlePanRecognizer.maximumNumberOfTouches = 1
-//                   singlePanRecognizer.minimumNumberOfTouches = 1
-//                   previewSceneView.addGestureRecognizer(singlePanRecognizer)
-            
-            
             // If more that two are present
-            if spheres.count > 2 {
+            if spheres.count == 2 {
+                var nearestNode : SCNNode? = nil
+                var nearestInd: Int? = nil
+                var shorestDistance: CGFloat = CGFLOAT_MAX
+                for (index, coord) in sphereCoordinate.enumerated() {
+                    let dist = distance(from: worldCoord, to: coord.1)
+                    if dist < shorestDistance {
+                        shorestDistance = dist
+                        nearestNode = spheres[index]
+                        nearestInd = index
+                    }
+                }
                 
                 // Iterate through spheres array
                 for sphere in spheres {
-                    
-                    // Remove all spheres
-                    sphere.removeFromParentNode()
+                    if sphere == nearestNode {
+                        sphere.removeFromParentNode()
+                        spheres.remove(at: nearestInd!)
+                        sphereCoordinate.remove(at: nearestInd!)
+                    }
                 }
-                
-                sphereCoordinate.removeAll()
-                spheres.removeAll()
-                measurementLabel.text = "0 mm"
-
             }
             
-            if spheres.count == 2 {
-                let panRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
-                previewSceneView.addGestureRecognizer(panRecognizer)
-            }
+            // Adds a second sphere to the array
+            spheres.append(sphere)
+            sphereCoordinate.append((localCoord, worldCoord))
+            let dist = distance(from: localCoord, to: firstCoord.0)
+            measurementLabel.text = "\(dist) mm"
         
         // If there are no spheres
         } else {
             // Add the sphere
-            sphere.name = "addedSphere"
             spheres.append(sphere)
-            sphereCoordinate.append(localCoord)
+            sphereCoordinate.append((localCoord, worldCoord))
             
         }
         
@@ -257,20 +247,15 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, 
     }
     
     func createSphere(at position: SCNVector3) -> SCNNode {
-        
-        // Creates an SCNSphere with a radius of 0.4
-        let capsule = SCNCapsule(capRadius: 0.002, height: 0.06)
-      
+        let sphere = SCNSphere(radius: 0.002)
+
         // Converts the sphere into an SCNNode
-        let handle  = SCNNode(geometry: capsule)
-        //handle.name = "landmarkNode"
-        
+        let node  = SCNNode(geometry: sphere)
+        node.name = "landmarkNode"
+
         // Positions nodes based on the passed in position
-        handle.position = position
-        
-        // Raise handles so they are not buried in the mesh
-        handle.eulerAngles = SCNVector3( (-CGFloat.pi/CGFloat(6.0)) , 0, (CGFloat.pi/CGFloat(6.0)))
-        
+        node.position = position
+
         // Creates a material that is recognized by SceneKit
         let material = SCNMaterial()
 
@@ -281,39 +266,32 @@ class ARViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, 
         material.lightingModel = .blinn
 
         // Wraps the newly made material around the sphere
-        capsule.firstMaterial = material
+        sphere.firstMaterial = material
 
         // Returns the node to the function
-        return handle
-            
+        return node
     }
     // Gets distance between two SCNNodes
-    func distance(fromLocalCoord: SCNVector3, toLocalCoord: SCNVector3) -> CGFloat {
+    func distance(from: SCNVector3, to: SCNVector3) -> CGFloat {
         
         // Meters to inches conversion
         let millimeter: Int = 1000
         
         // Difference between x-positions
-        let dx = toLocalCoord.x - fromLocalCoord.x
+        let dx = to.x - from.x
         
         // Difference between x-positions
-        let dy = toLocalCoord.y - fromLocalCoord.y
+        let dy = to.y - from.y
         
         // Difference between x-positions
-        let dz = toLocalCoord.z - fromLocalCoord.z
+        let dz = to.z - from.z
         
         // Formula to get meters
         let meters = sqrt(dx*dx + dy*dy + dz*dz)
-    
+        
         // Returns inches
         return CGFloat(meters * Float(millimeter))
     }
-    
-    @objc func handlePan(sender: UIPanGestureRecognizer) {
-        let location = sender.location(in: previewSceneView)
-        let hitTest = previewSceneView.hitTest(location)
-    }
-    
 }
 
 
